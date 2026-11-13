@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bandhan Wedding Planner - Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #0284c7;
+      --dark-blue: #0f172a;
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      padding-bottom: 210px;
+    }
+
+    /* Particle Background Canvas */
+    #particleCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Main App Container */
+    .app-container {
+      position: relative;
+      z-index: 10;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    /* Top Dashboard Header */
+    .dash-header {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.12);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+      flex-shrink: 0;
+    }
+
+    .brand-info h1 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--dark-blue);
+    }
+
+    .brand-info p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    /* Stacked Navigation Cards (Up-Down) */
+    .stack-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .nav-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 14px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+      transition: transform 0.15s ease;
+    }
+
+    .nav-card:active {
+      transform: scale(0.98);
+    }
+
+    .nav-card-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .icon-web { background: #e0f2fe; color: #0284c7; }
+    .icon-insta { background: #fce7f3; color: #db2777; }
+    .icon-jd { background: #fef3c7; color: #d97706; }
+
+    .nav-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .nav-subtitle {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .nav-arrow {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    /* Left-to-Right Horizontal Review Slider Section */
+    .slider-header {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 6px;
+      padding-left: 2px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .horizontal-slider {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 4px 2px 14px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .horizontal-slider::-webkit-scrollbar {
+      display: none;
+    }
+
+    .review-card {
+      scroll-snap-align: start;
+      flex: 0 0 82%;
+      max-width: 320px;
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .review-card:active {
+      transform: scale(0.98);
+    }
+
+    .review-card.selected {
+      border-color: var(--primary-blue);
+      background: #f0fdf4;
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.2);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .area-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #0369a1;
+      background: #e0f2fe;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .rev-num {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .review-text {
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    /* Fixed Bottom Action Dock */
+    .bottom-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(203, 213, 225, 0.7);
+      padding: 12px 16px 18px;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.08);
+      z-index: 100;
+    }
+
+    .dock-inner {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .dock-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .star-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .star-pill {
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .star-pill.active {
+      border-color: #f59e0b;
+      background: #fffbeb;
+      color: #b45309;
+    }
+
+    .edit-trigger {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--primary-blue);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: none;
+    }
+
+    .action-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .action-btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-google {
+      background: #1a73e8;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(26, 115, 232, 0.3);
+    }
+
+    .btn-justdial {
+      background: #ff6d00;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(255, 109, 0, 0.3);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 200;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #fff;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-card h4 {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .modal-card textarea {
+      width: 100%;
+      min-height: 105px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.86rem;
+      line-height: 1.45;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    .modal-btns {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .modal-btns button {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-modal-cancel { background: #f1f5f9; color: var(--text-main); }
+    .btn-modal-save { background: var(--primary-blue); color: #fff; }
+
+    /* Toast */
+    .toast-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .toast-overlay.show { opacity: 1; }
+
+    .toast-box {
+      background: #fff;
+      border-radius: 18px;
+      padding: 22px 18px;
+      max-width: 300px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .toast-check {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #dcfce7;
+      color: #16a34a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    .toast-box h3 { font-size: 1rem; margin-bottom: 4px; font-weight: 800; color: var(--dark-blue); }
+    .toast-box p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+  </style>
+</head>
+<body>
+
+  <!-- Particle Effect Canvas -->
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="app-container">
+    
+    <!-- Top Dashboard Header -->
+    <header class="dash-header">
+      <div class="brand-avatar">💍</div>
+      <div class="brand-info">
+        <h1>Bandhan Wedding Planner</h1>
+        <p>Saharsa's Premier Event Experts</p>
+      </div>
+    </header>
+
+    <!-- Stacked Navigation Cards (Up-Down) -->
+    <div class="stack-section">
+      <a href="https://bandhan-weeding-planner.netlify.app" target="_blank" rel="noopener" class="nav-card">
+        <div class="nav-card-left">
+          <div class="nav-icon icon-web">🌐</div>
+          <div>
+            <div class="nav-title">Our Official Website</div>
+            <div class="nav-subtitle">Explore portfolios &amp; packages</div>
+          </div>
+        </div>
+        <div class="nav-arrow">&rarr;</div>
+      </a>
+
+      <a href="https://www.instagram.com/bandhan_weeding_planner?exln=MTJnYXpjOGdjd2l3cw==" target="_blank" rel="noopener" class="nav-card">
+        <div class="nav-card-left">
+          <div class="nav-icon icon-insta">📸</div>
+          <div>
+            <div class="nav-title">Our Instagram Gallery</div>
+            <div class="nav-subtitle">Watch recent event reels</div>
+          </div>
+        </div>
+        <div class="nav-arrow">&rarr;</div>
+      </a>
+
+      <a href="https://jsdl.in/RSL-RAT1794599308" target="_blank" rel="noopener" class="nav-card">
+        <div class="nav-card-left">
+          <div class="nav-icon icon-jd">⭐</div>
+          <div>
+            <div class="nav-title">Our Justdial Profile</div>
+            <div class="nav-subtitle">Read verified customer ratings</div>
+          </div>
+        </div>
+        <div class="nav-arrow">&rarr;</div>
+      </a>
+    </div>
+
+    <!-- Horizontal Review Slider Section -->
+    <div class="slider-header">
+      <span>👉 Slide &amp; Select a Review (50 Options)</span>
+      <span id="selectedIndicator" style="font-size:0.72rem; color:#0284c7; font-weight:700;"></span>
+    </div>
+
+    <div class="horizontal-slider" id="reviewList"></div>
+
+  </div>
+
+  <!-- Bottom Action Dock -->
+  <div class="bottom-dock">
+    <div class="dock-inner">
+      <div class="dock-controls">
+        <div class="star-group">
+          <button type="button" class="star-pill active" onclick="setStars(5, this)">★★★★★ 5 Star</button>
+          <button type="button" class="star-pill" onclick="setStars(3, this)">★★★ 3 Star</button>
+        </div>
+        <button type="button" class="edit-trigger" id="editBtn" onclick="openModal()">✎ Edit Text</button>
+      </div>
+
+      <div class="action-stack">
+        <button type="button" id="googleBtn" class="action-btn btn-google" disabled onclick="executeAction('google')">
+          <span>🌐 Post on Google Review</span>
+        </button>
+        <button type="button" id="jdBtn" class="action-btn btn-justdial" disabled onclick="executeAction('justdial')">
+          <span>⭐ Post on Justdial Review</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-backdrop" id="editModal">
+    <div class="modal-card">
+      <h4>Customize Your Review</h4>
+      <textarea id="modalTextarea"></textarea>
+      <div class="modal-btns">
+        <button type="button" class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+        <button type="button" class="btn-modal-save" onclick="saveModal()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-overlay" id="toastOverlay">
+    <div class="toast-box">
+      <div class="toast-check">✓</div>
+      <h3>Review Copied!</h3>
+      <p id="toastMessage">Opening platform... Tap Paste to submit.</p>
+    </div>
+  </div>
+
+  <script>
+    // Particle Animation Script
+    const canvas = document.getElementById("particleCanvas");
+    const ctx = canvas.getContext("2d");
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    const particles = [];
+    for (let i = 0; i < 25; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2.5 + 1,
+        speedX: (Math.random() - 0.5) * 0.4,
+        speedY: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.5 + 0.2
+      });
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.speedX;
+        p.y += p.speedY;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(2, 132, 199, ${p.alpha})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // Review Data & Logic
+    const URLS = {
+      google: "https://g.page/r/CZjKVqmlQX69EBM/review",
+      justdial: "https://jsdl.in/RSL-RAT1794599308"
+    };
+
+    const reviews = [
+      { id: 1, area: "Naya Bazar", text: "Best wedding planner in Saharsa because the team provided helpful service and managed the arrangements properly. Thank you, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 2, area: "Mahishi", text: "Best event planner in Saharsa for the arrangements we received. Kanhija Ji and the team were supportive and coordinated the event well. Thank you, Bandhan Wedding Planner." },
+      { id: 3, area: "Nariyar", text: "We had a good experience with these professional wedding planners in Saharsa. The team listened to our requirements and helped with the arrangements. Thanks, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 4, area: "D.B. Road", text: "We were satisfied with the catering service arranged for our function. The food and service were managed well. Thank you, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 5, area: "Hatiya Gachhi", text: "Good event management in Saharsa. The team coordinated the arrangements and helped our function run smoothly. Thanks to Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 6, area: "Purab Bazar", text: "A helpful team for event management in Saharsa. The arrangements were handled according to our discussion. Thank you, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 7, area: "Gangjala Chowk", text: "One of the best event planners in Saharsa based on our experience. The team was cooperative and managed the event arrangements well. Thanks, Bandhan Wedding Planner." },
+      { id: 8, area: "Police Line", text: "Good experience with the top event planners in Saharsa. Kanhija Ji guided us during the planning and the team supported us throughout. Thank you, Bandhan Wedding Planner." },
+      { id: 9, area: "Sant Nagar", text: "If you need a Saharsa event planner, you can consider Bandhan Wedding Planner. We appreciated the team's coordination and service. Thanks, Kanhija Ji." },
+      { id: 10, area: "Jay Prabha Nagar", text: "Good wedding service providers in Saharsa. The team understood our needs and helped arrange the services we selected. Thank you, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 11, area: "Vidyapati Nagar", text: "Our experience was good and the event arrangements were completed as discussed. Thank you to Kanhija Ji and Bandhan Wedding Planner for the support." },
+      { id: 12, area: "Bengali Bazar", text: "Good event management in Saharsa with helpful coordination from the team. We appreciate Kanhija Ji's support. Thanks, Bandhan Wedding Planner." },
+      { id: 13, area: "Shradha Nagar", text: "We liked the decoration work done for our event. The team paid attention to the setup and our requirements. Thank you, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 14, area: "Panchwati", text: "Among the wedding planners in Saharsa, Bandhan Wedding Planner gave us a good experience. The team was cooperative and helped with the planning. Thanks, Kanhija Ji." },
+      { id: 15, area: "Rajwanshi Nagar", text: "Best wedding planner in Saharsa for the services we used. The arrangements were handled with care and the team was helpful. Thank you, Kanhija Ji." },
+      { id: 16, area: "Refugee Colony", text: "A reliable event planner in Saharsa based on our experience. The team coordinated the work and helped us with the event. Thanks, Bandhan Wedding Planner." },
+      { id: 17, area: "Gandhi Path", text: "We were happy with the wedding decoration arranged for our function. The setup matched our requirements. Thank you, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 18, area: "Super Market Road", text: "Good experience with a wedding planner in Saharsa. Kanhija Ji and the team understood our needs and helped us plan the function. Thank you, Bandhan Wedding Planner." },
+      { id: 19, area: "Bariyahi Bazar", text: "Bandhan Wedding Planner provided the wedding services we discussed and the team was supportive. Thank you, Kanhija Ji, for helping with our function." },
+      { id: 20, area: "Bangaon", text: "Good wedding event management in Saharsa. The team coordinated the arrangements and supported us during the function. Thanks, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 21, area: "Kahra", text: "We had a positive experience with the wedding planning services. The team communicated with us and helped organize the arrangements. Thank you, Bandhan Wedding Planner." },
+      { id: 22, area: "Saur Bazar", text: "The wedding decoration services were handled according to our selected setup. We appreciate the team's effort. Thanks, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 23, area: "Baijnathpur", text: "We liked the stage decoration arranged for our event. The team understood the design we wanted and worked on the setup. Thank you, Bandhan Wedding Planner." },
+      { id: 24, area: "Simri Bakhtiyarpur", text: "Good experience with a wedding management company in Saharsa. The team helped coordinate our function and was cooperative. Thanks, Kanhija Ji." },
+      { id: 25, area: "Sonbarsa", text: "A helpful marriage planner in Saharsa. The team supported us with planning and the arrangements we booked. Thank you, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 26, area: "Nauhatta", text: "Best wedding planner in Saharsa for our family's function. We appreciated the team's behaviour, planning and support. Thank you, Kanhija Ji." },
+      { id: 27, area: "Satar Kataiya", text: "Best event planner in Saharsa for the event services we received. The team was helpful and coordinated the work properly. Thanks, Bandhan Wedding Planner." },
+      { id: 28, area: "Patarghat", text: "The professional wedding planners in Saharsa team was polite and responsive. They helped us organize the services we needed. Thank you, Kanhija Ji." },
+      { id: 29, area: "Salkhua", text: "We had a good experience with event management in Saharsa through Bandhan Wedding Planner. The team helped us manage the arrangements. Thank you, Kanhija Ji." },
+      { id: 30, area: "Banma Itahri", text: "Good service from Bandhan Wedding Planner. The team helped us with our wedding arrangements and answered our questions. Thanks, Kanhija Ji." },
+      { id: 31, area: "Amarpur", text: "The event was managed well and the team was cooperative throughout the arrangements. Thank you, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 32, area: "Patuwaha", text: "The decoration work was neat and suited the function we planned. We appreciate the team's effort. Thanks, Bandhan Wedding Planner." },
+      { id: 33, area: "Solindabad", text: "Good experience with event decorators in Saharsa. The team discussed the setup with us and completed the decoration we booked. Thank you, Kanhija Ji." },
+      { id: 34, area: "Baluaha", text: "Helpful wedding service providers in Saharsa. We received clear communication and support for the services we selected. Thanks, Bandhan Wedding Planner." },
+      { id: 35, area: "Bakhri", text: "The team was cooperative and helped coordinate our event requirements. Thank you to Kanhija Ji and Bandhan Wedding Planner for the service." },
+      { id: 36, area: "Bhawanipur", text: "Bandhan Wedding Planner gave us a good experience for our function in Saharsa. The team helped with the arrangements we requested. Thank you, Kanhija Ji." },
+      { id: 37, area: "Gamharia", text: "The planning process was straightforward and the team helped us understand the arrangements. Thanks to Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 38, area: "Garhia", text: "The stage setup was completed according to the design we discussed. We appreciate the work and support from the team. Thank you, Bandhan Wedding Planner." },
+      { id: 39, area: "Nado", text: "Our event arrangements were coordinated well by the team. Thank you, Kanhija Ji, for your support and service through Bandhan Wedding Planner." },
+      { id: 40, area: "Parwania", text: "We had a good experience with Bandhan Wedding Planner. Kanhija Ji helped us with the wedding arrangements and the team was supportive. Thank you." },
+      { id: 41, area: "Rupnagar", text: "I had a positive experience with this event planner in Saharsa. The team was helpful with the arrangements we booked. Thanks, Kanhija Ji." },
+      { id: 42, area: "Panchgachhia", text: "The catering arrangements for our function were handled well. Thank you to Kanhija Ji and Bandhan Wedding Planner for coordinating the service." },
+      { id: 43, area: "Agwanpur", text: "The wedding services we booked were arranged as discussed. The team was cooperative and helpful. Thank you, Bandhan Wedding Planner." },
+      { id: 44, area: "Nandlali", text: "Kanhija Ji and the team were professional and helpful during our event planning. We appreciate the service provided by Bandhan Wedding Planner." },
+      { id: 45, area: "Bihra", text: "We appreciated the team's coordination and support for our function. Thank you, Kanhija Ji and Bandhan Wedding Planner." },
+      { id: 46, area: "Saharsa East", text: "The decoration service was organized according to our preferences. Thank you to the team and Kanhija Ji for the support." },
+      { id: 47, area: "Saharsa West", text: "Bandhan Wedding Planner helped us with the marriage arrangements we selected. The team was cooperative and easy to communicate with. Thank you, Kanhija Ji." },
+      { id: 48, area: "Bhatni", text: "Good service and helpful coordination for our event in Saharsa. Thank you, Kanhija Ji and the Bandhan Wedding Planner team." },
+      { id: 49, area: "Main Road", text: "Based on the service we received, Bandhan Wedding Planner was a good choice for our function. Thank you, Kanhija Ji, for your support." },
+      { id: 50, area: "Station Road", text: "We appreciate the event planning support from Kanhija Ji and the team. The arrangements we booked were coordinated well. Thank you, Bandhan Wedding Planner." }
+    ];
+
+    let selectedId = null;
+    let activeText = "";
+    let starRating = 5;
+
+    const listContainer = document.getElementById("reviewList");
+    const editBtn = document.getElementById("editBtn");
+    const googleBtn = document.getElementById("googleBtn");
+    const jdBtn = document.getElementById("jdBtn");
+    const indicator = document.getElementById("selectedIndicator");
+
+    function renderReviews() {
+      listContainer.innerHTML = "";
+      reviews.forEach((item) => {
+        const isSelected = selectedId === item.id;
+        const card = document.createElement("div");
+        card.className = `review-card ${isSelected ? "selected" : ""}`;
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="area-tag">📍 ${item.area}</span>
+            <span class="rev-num">#${String(item.id).padStart(2, '0')}</span>
+          </div>
+          <p class="review-text">${isSelected ? activeText : item.text}</p>
+        `;
+        card.onclick = () => selectItem(item);
+        listContainer.appendChild(card);
+      });
+    }
+
+    function selectItem(item) {
+      selectedId = item.id;
+      activeText = item.text;
+      editBtn.style.display = "inline-block";
+      googleBtn.disabled = false;
+      jdBtn.disabled = false;
+      indicator.textContent = `✓ Review #${item.id} Selected`;
+      renderReviews();
+    }
+
+    function setStars(count, btn) {
+      starRating = count;
+      document.querySelectorAll(".star-pill").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+    }
+
+    function openModal() {
+      if (!selectedId) return;
+      document.getElementById("modalTextarea").value = activeText;
+      document.getElementById("editModal").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("editModal").classList.remove("open");
+    }
+
+    function saveModal() {
+      const val = document.getElementById("modalTextarea").value.trim();
+      if (val) {
+        activeText = val;
+        renderReviews();
+      }
+      closeModal();
+    }
+
+    function executeAction(platform) {
+      if (!activeText) return;
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(activeText).catch(() => fallback(activeText));
+      } else {
+        fallback(activeText);
+      }
+
+      const toast = document.getElementById("toastOverlay");
+      const msg = document.getElementById("toastMessage");
+      const name = platform === "google" ? "Google Review" : "Justdial";
+      msg.textContent = `Opening ${name}... Select ${starRating} Stars and Paste your review.`;
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        window.location.href = URLS[platform];
+      }, 1050);
+    }
+
+    function fallback(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+
+    renderReviews();
+  </script>
+</body>
+</html>
